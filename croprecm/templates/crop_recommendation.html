@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Crop Recommendation</h1>
+    <form id="cropForm">
+        <label for="N">Nitrogen (N)</label>
+        <input type="text" id="N" name="N" required>
+
+        <label for="P">Phosphorous (P)</label>
+        <input type="text" id="P" name="P" required>
+
+        <label for="K">Potassium (K)</label>
+        <input type="text" id="K" name="K" required>
+
+        <label for="temperature">Temperature</label>
+        <input type="text" id="temperature" name="temperature" required>
+
+        <label for="humidity">Humidity</label>
+        <input type="text" id="humidity" name="humidity" required>
+
+        <label for="ph">pH Level</label>
+        <input type="text" id="ph" name="ph" required>
+
+        <label for="rainfall">Rainfall</label>
+        <input type="text" id="rainfall" name="rainfall" required>
+
+        <button type="submit">Recommend Crop</button>
+    </form>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    document.getElementById('cropForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Get form data
+        const N = document.getElementById('N').value;
+        const P = document.getElementById('P').value;
+        const K = document.getElementById('K').value;
+        const temperature = document.getElementById('temperature').value;
+        const humidity = document.getElementById('humidity').value;
+        const ph = document.getElementById('ph').value;
+        const rainfall = document.getElementById('rainfall').value;
+
+        // Prepare the request payload
+        const payload = {
+            N: parseFloat(N),
+            P: parseFloat(P),
+            K: parseFloat(K),
+            temperature: parseFloat(temperature),
+            humidity: parseFloat(humidity),
+            ph: parseFloat(ph),
+            rainfall: parseFloat(rainfall)
+        };
+
+        // Send data to the backend using fetch API
+        const response = await fetch('/croprecm/recommend/', {  // Corrected URL
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token handling
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // Parse the response and display the result
+        const result = await response.json();
+        if (response.ok) {
+            document.getElementById('result').innerHTML = `Recommended Crop: <strong>${result.recommended_crop}</strong>`;
+        } else {
+            document.getElementById('result').innerHTML = `Error: <strong>${result.error}</strong>`;
+        }
+    });
+</script>
+
+</body>
+</html>
